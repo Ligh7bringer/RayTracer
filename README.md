@@ -1,2 +1,2 @@
-A simple ray tracer based on [Ray Tracing in a Weekend]([http://www.realtimerendering.com/raytracing/Ray%20Tracing%20in%20a%20Weekend.pdf](http://www.realtimerendering.com/raytracing/Ray Tracing in a Weekend.pdf)).
+A simple ray tracer based on [Ray Tracing in a Weekend](http://in1weekend.blogspot.com/).
 
