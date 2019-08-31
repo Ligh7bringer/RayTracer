@@ -1,27 +1,11 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <random>
 
+#include "camera.h"
 #include "hittable_list.h"
 #include "sphere.h"
-
-//float hit_sphere(const vec3& centre, float radius, const ray& r)
-//{
-//	vec3 oc = r.origin() - centre;
-//	float a = dot(r.direction(), r.direction());
-//	float b = 2.f * dot(oc, r.direction());
-//	float c = dot(oc, oc) - radius * radius;
-//	float discriminant = b * b - 4 * a * c;
-//
-//	if(discriminant < 0.f)
-//	{
-//		return -1.f;
-//	}
-//	else
-//	{
-//		return (-b - sqrt(discriminant)) / (2.f * a);
-//	}
-//}
 
 vec3 colour(const ray& r, hittable* world)
 {
@@ -42,6 +26,7 @@ int main()
 {
 	int nx = 1200;
 	int ny = 600;
+	int ns = 100;
 
 	std::ofstream out;
 	out.open("out.ppm");
@@ -58,16 +43,27 @@ int main()
 	list[1] = new sphere(vec3(0.f, -100.5f, -1.f), 100.f);
 	hittable* world = new hittable_list(list, 2);
 
+	camera cam;
+
+	std::mt19937 mt_engine(std::random_device{}());
+	std::uniform_real_distribution<float> fdist(0.f, 0.999f);
+
 	for(int j = ny - 1; j >= 0; j--)
 	{
 		for(int i = 0; i < nx; i++)
 		{
-			auto u = float(i) / float(nx);
-			auto v = float(j) / float(ny);
+			vec3 col(0.f, 0.f, 0.f);
+			for(int s = 0; s < ns; s++)
+			{
+				float u = (float(i) + fdist(mt_engine)) / float(nx);
+				float v = (float(j) + fdist(mt_engine)) / float(ny);
 
-			ray r(origin, lower_left_corner + u * horizontal + v * vertical);
+				ray r = cam.get_ray(u, v);
+				vec3 p = r.point_at_parameter(2.f);
+				col += colour(r, world);
+			}
 
-			vec3 col = colour(r, world);
+			col /= float(ns);
 			int ir = int(255.99 * col.r());
 			int ig = int(255.99 * col.g());
 			int ib = int(255.99 * col.b());
