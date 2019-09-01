@@ -5,14 +5,25 @@
 
 #include "camera.h"
 #include "hittable_list.h"
+#include "material.h"
 #include "sphere.h"
 
-vec3 colour(const ray& r, hittable* world)
+vec3 colour(const ray& r, hittable* world, int depth)
 {
 	hit_record rec;
-	if(world->hit(r, 0.f, std::numeric_limits<float>::max(), rec))
+	if(world->hit(r, 0.001f, std::numeric_limits<float>::max(), rec))
 	{
-		return 0.5f * vec3(rec.normal.x() + 1.f, rec.normal.y() + 1.f, rec.normal.z() + 1.f);
+		ray scattered;
+		vec3 attenuation;
+
+		if(depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+		{
+			return attenuation * colour(scattered, world, depth + 1);
+		}
+		else
+		{
+			return vec3(0.f, 0.f, 0.f);
+		}
 	}
 	else
 	{
@@ -24,8 +35,8 @@ vec3 colour(const ray& r, hittable* world)
 
 int main()
 {
-	int nx = 1200;
-	int ny = 600;
+	int nx = 800;
+	int ny = 400;
 	int ns = 100;
 
 	std::ofstream out;
@@ -38,10 +49,12 @@ int main()
 	const vec3 vertical(0.f, 2.f, 0.f);
 	const vec3 origin(0.f, 0.f, 0.f);
 
-	hittable* list[2];
-	list[0] = new sphere(vec3(0.f, 0.f, -1.f), 0.5f);
-	list[1] = new sphere(vec3(0.f, -100.5f, -1.f), 100.f);
-	hittable* world = new hittable_list(list, 2);
+	hittable* list[4];
+	list[0] = new sphere(vec3(0.f, 0.f, -1.f), 0.5f, new lambertian(vec3(0.8f, 0.3f, 0.3f)));
+	list[1] = new sphere(vec3(0.f, -100.5f, -1.f), 100.f, new lambertian(vec3(0.8f, 0.8f, 0.f)));
+	list[2] = new sphere(vec3(1.f, 0.f, -1.f), 0.5f, new metal(vec3(0.8f, 0.6f, 0.2f)));
+	list[3] = new sphere(vec3(-1.f, 0.f, -1.f), 0.5f, new metal(vec3(0.8f, 0.8f, 0.8f)));
+	hittable* world = new hittable_list(list, 4);
 
 	camera cam;
 
@@ -60,10 +73,11 @@ int main()
 
 				ray r = cam.get_ray(u, v);
 				vec3 p = r.point_at_parameter(2.f);
-				col += colour(r, world);
+				col += colour(r, world, 0);
 			}
 
 			col /= float(ns);
+			col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 			int ir = int(255.99 * col.r());
 			int ig = int(255.99 * col.g());
 			int ib = int(255.99 * col.b());
