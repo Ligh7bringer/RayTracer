@@ -2,17 +2,17 @@
 
 #include "hittable.h"
 
-class sphere : public hittable
+class Sphere : public Hittable
 {
 public:
-	sphere() = default;
-	sphere(vec3 cen, float r, material* mat)
+	Sphere() = default;
+	Sphere(vec3 cen, float r, material* mat)
 		: centre(cen)
 		, radius(r)
 		, mat_ptr(mat)
 	{}
 
-	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const override
+	virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const override
 	{
 		vec3 oc = r.origin() - centre;
 		float a = dot(r.direction(), r.direction());

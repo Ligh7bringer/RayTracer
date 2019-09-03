@@ -55,7 +55,7 @@ inline std::ostream& operator<<(std::ostream& os, const vec3& t)
 
 inline void vec3::make_unit_vector()
 {
-	float k = 1.0 / sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2]);
+	float k = 1.f / sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2]);
 	e[0] *= k;
 	e[1] *= k;
 	e[2] *= k;
@@ -152,3 +152,25 @@ inline vec3& vec3::operator/=(const float t)
 inline vec3 unit_vector(vec3 v) { return v / v.length(); }
 
 vec3 reflect(const vec3& v, const vec3& n) { return v - 2 * dot(v, n) * n; }
+
+bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted)
+{
+	vec3 uv = unit_vector(v);
+	float dt = dot(uv, n);
+	float discriminant = 1.f - ni_over_nt * ni_over_nt * (1.f - dt * dt);
+
+	if(discriminant > 0.f)
+	{
+		refracted = ni_over_nt * (uv - n * dt) - n * sqrt(discriminant);
+		return true;
+	}
+	else
+		return false;
+}
+
+float schlick(float cosine, float ref_idx)
+{
+	float r0 = (1.f - ref_idx) / (1.f + ref_idx);
+	r0 = r0 * r0;
+	return r0 + (1.f - r0) * pow((1.f - cosine), 5.f);
+}

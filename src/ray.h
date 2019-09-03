@@ -2,11 +2,11 @@
 
 #include "vec3.h"
 
-class ray
+class Ray
 {
 public:
-	ray() = default;
-	ray(const vec3& a, const vec3& b)
+	Ray() = default;
+	Ray(const vec3& a, const vec3& b)
 		: A(a)
 		, B(b)
 	{}

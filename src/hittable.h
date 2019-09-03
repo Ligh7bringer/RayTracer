@@ -4,7 +4,7 @@
 
 class material;
 
-struct hit_record
+struct HitRecord
 {
 	float t;
 	vec3 p;
@@ -12,8 +12,8 @@ struct hit_record
 	material* mat_ptr;
 };
 
-class hittable
+class Hittable
 {
 public:
-	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const = 0;
+	virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const = 0;
 };
