@@ -59,11 +59,17 @@ int main()
 	list[4] = new Sphere(vec3(-1.f, 0.f, -1.f), -0.45f, new Dielectric(1.5f));
 	Hittable* world = new HittableList(list, list_size);
 
-	Camera cam(vec3(-2.f, 2.f, 1.f),
-			   vec3(0.f, 0.f, -1.f),
+	vec3 lookfrom(3.f, 3.f, 2.f);
+	vec3 lookat(0.f, 0.f, -1.f);
+	float dist_to_focus = (lookfrom - lookat).length();
+	float aperture = 2.f;
+	Camera cam(lookfrom,
+			   lookat,
 			   vec3(0.f, 1.f, 0.f),
-			   90.f,
-			   float(nx) / (float)(ny));
+			   20.f,
+			   float(nx) / (float)(ny),
+			   aperture,
+			   dist_to_focus);
 
 	std::mt19937 mt_engine(std::random_device{}());
 	std::uniform_real_distribution<float> fdist(0.f, 0.999f);
