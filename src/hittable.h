@@ -2,14 +2,16 @@
 
 #include "ray.h"
 
-class material;
+#include <memory>
+
+class Material;
 
 struct HitRecord
 {
 	float t;
 	vec3 p;
 	vec3 normal;
-	material* mat_ptr;
+	std::shared_ptr<Material> mat_ptr;
 };
 
 class Hittable

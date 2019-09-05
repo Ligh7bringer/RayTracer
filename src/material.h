@@ -18,14 +18,14 @@ vec3 random_in_unit_sphere()
 	return p;
 }
 
-class material
+class Material
 {
 public:
 	virtual bool
 	scatter(const Ray& r_in, const HitRecord& rec, vec3& attenuation, Ray& scattered) const = 0;
 };
 
-class Lambertian : public material
+class Lambertian : public Material
 {
 public:
 	Lambertian(const vec3& a)
@@ -45,7 +45,7 @@ private:
 	vec3 albedo;
 };
 
-class Metal : public material
+class Metal : public Material
 {
 public:
 	Metal(const vec3& a, float f)
@@ -72,7 +72,7 @@ private:
 	float fuzz;
 };
 
-class Dielectric : public material
+class Dielectric : public Material
 {
 public:
 	Dielectric(float ri)

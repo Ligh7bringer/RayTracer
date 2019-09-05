@@ -6,7 +6,7 @@ class Sphere : public Hittable
 {
 public:
 	Sphere() = default;
-	Sphere(vec3 cen, float r, material* mat)
+	Sphere(vec3 cen, float r, std::shared_ptr<Material> mat)
 		: centre(cen)
 		, radius(r)
 		, mat_ptr(mat)
@@ -49,5 +49,5 @@ public:
 private:
 	vec3 centre;
 	float radius;
-	material* mat_ptr;
+	std::shared_ptr<Material> mat_ptr;
 };

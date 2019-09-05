@@ -2,11 +2,16 @@
 
 #include "hittable.h"
 
+#include <memory>
+#include <vector>
+
+using hittables_vec = std::vector<std::shared_ptr<Hittable>>;
+
 class HittableList : public Hittable
 {
 public:
 	HittableList() = default;
-	HittableList(Hittable** l, int n)
+	HittableList(const hittables_vec& l, int n)
 		: list(l)
 		, list_size(n)
 	{}
@@ -30,6 +35,6 @@ public:
 	}
 
 private:
-	Hittable** list;
+	hittables_vec list;
 	int list_size;
 };

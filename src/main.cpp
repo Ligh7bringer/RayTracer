@@ -1,6 +1,8 @@
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <random>
 #include <vector>
 
@@ -11,8 +13,9 @@
 #include "hittable_list.h"
 #include "material.h"
 #include "sphere.h"
+#include "timer.h"
 
-vec3 colour(const Ray& r, Hittable* world, int depth)
+vec3 colour(const Ray& r, std::shared_ptr<Hittable> world, int depth)
 {
 	HitRecord rec;
 	if(world->hit(r, 0.001f, std::numeric_limits<float>::max(), rec))
@@ -37,26 +40,33 @@ vec3 colour(const Ray& r, Hittable* world, int depth)
 	}
 }
 
-Hittable* test_scene()
+std::shared_ptr<Hittable> test_scene()
 {
 	constexpr int list_size = 5;
-	Hittable* list[list_size];
+	hittables_vec list(list_size);
 
-	list[0] = new Sphere(vec3(0.f, 0.f, -1.f), 0.5f, new Lambertian(vec3(0.1f, 0.2f, 0.5f)));
-	list[1] = new Sphere(vec3(0.f, -100.5f, -1.f), 100.f, new Lambertian(vec3(0.8f, 0.8f, 0.f)));
-	list[2] = new Sphere(vec3(1.f, 0.f, -1.f), 0.5f, new Metal(vec3(0.8f, 0.6f, 0.2f), 0.3f));
-	list[3] = new Sphere(vec3(-1.f, 0.f, -1.f), 0.5f, new Dielectric(1.5f));
-	list[4] = new Sphere(vec3(-1.f, 0.f, -1.f), -0.45f, new Dielectric(1.5f));
+	list[0] = std::make_shared<Sphere>(
+		vec3(0.f, 0.f, -1.f), 0.5f, std::make_shared<Lambertian>(vec3(0.1f, 0.2f, 0.5f)));
+	list[1] = std::make_shared<Sphere>(
+		vec3(0.f, -100.5f, -1.f), 100.f, std::make_shared<Lambertian>(vec3(0.8f, 0.8f, 0.f)));
+	list[2] = std::make_shared<Sphere>(
+		vec3(1.f, 0.f, -1.f), 0.5f, std::make_shared<Metal>(vec3(0.8f, 0.6f, 0.2f), 0.3f));
+	list[3] =
+		std::make_shared<Sphere>(vec3(-1.f, 0.f, -1.f), 0.5f, std::make_shared<Dielectric>(1.5f));
+	list[4] =
+		std::make_shared<Sphere>(vec3(-1.f, 0.f, -1.f), -0.45f, std::make_shared<Dielectric>(1.5f));
 
-	return new HittableList(list, list_size);
+	return std::make_shared<HittableList>(list, list_size);
 }
 
-Hittable* random_scene()
+std::shared_ptr<Hittable> random_scene()
 {
-	std::cout << "Generating a random scene... ";
 	constexpr int num_spheres = 500;
-	Hittable** list = new Hittable*[num_spheres + 1];
-	list[0] = new Sphere(vec3(0, -1000.f, 0.f), 1000.f, new Lambertian(vec3(0.5f, 0.5f, 0.5f)));
+	hittables_vec hittables(num_spheres + 1);
+
+	std::cout << "Generating a random scene... ";
+	hittables[0] = std::make_shared<Sphere>(
+		vec3(0, -1000.f, 0.f), 1000.f, std::make_shared<Lambertian>(vec3(0.5f, 0.5f, 0.5f)));
 	int idx = 1;
 
 	std::mt19937 mt_engine(std::random_device{}());
@@ -72,43 +82,50 @@ Hittable* random_scene()
 			{
 				if(choose_mat < 0.8f) // diffuse
 				{
-					list[idx++] =
-						new Sphere(centre,
-								   0.2f,
-								   new Lambertian(vec3(fdist(mt_engine) * fdist(mt_engine),
-													   fdist(mt_engine) * fdist(mt_engine),
-													   fdist(mt_engine) * fdist(mt_engine))));
+					hittables[idx++] = std::make_shared<Sphere>(
+						centre,
+						0.2f,
+						std::make_shared<Lambertian>(vec3(fdist(mt_engine) * fdist(mt_engine),
+														  fdist(mt_engine) * fdist(mt_engine),
+														  fdist(mt_engine) * fdist(mt_engine))));
 				}
 				else if(choose_mat < 0.95f) // metal
 				{
-					list[idx++] = new Sphere(centre,
-											 0.2f,
-											 new Metal(vec3(0.5f * (1.f + fdist(mt_engine)),
-															0.5f * (1.f + fdist(mt_engine)),
-															0.5f * (1.f + fdist(mt_engine))),
-													   0.5f * fdist(mt_engine)));
+					hittables[idx++] = std::make_shared<Sphere>(
+						centre,
+						0.2f,
+						std::make_shared<Metal>(vec3(0.5f * (1.f + fdist(mt_engine)),
+													 0.5f * (1.f + fdist(mt_engine)),
+													 0.5f * (1.f + fdist(mt_engine))),
+												0.5f * fdist(mt_engine)));
 				}
 				else // glass
 				{
-					list[idx++] = new Sphere(centre, 0.2f, new Dielectric(1.5f));
+					hittables[idx++] =
+						std::make_shared<Sphere>(centre, 0.2f, std::make_shared<Dielectric>(1.5f));
 				}
 			}
 		}
 	}
 
-	list[idx++] = new Sphere(vec3(0.f, 1.f, 0.f), 1.f, new Dielectric(1.5f));
-	list[idx++] = new Sphere(vec3(-4.f, 1.f, 0.f), 1.f, new Lambertian(vec3(0.4f, 0.2f, 0.1f)));
-	list[idx++] = new Sphere(vec3(4.f, 1.f, 0.f), 1.f, new Metal(vec3(0.7f, 0.6f, 0.5f), 0.f));
+	hittables[idx++] =
+		std::make_shared<Sphere>(vec3(0.f, 1.f, 0.f), 1.f, std::make_shared<Dielectric>(1.5f));
+	hittables[idx++] = std::make_shared<Sphere>(
+		vec3(-4.f, 1.f, 0.f), 1.f, std::make_shared<Lambertian>(vec3(0.4f, 0.2f, 0.1f)));
+	hittables[idx++] = std::make_shared<Sphere>(
+		vec3(4.f, 1.f, 0.f), 1.f, std::make_shared<Metal>(vec3(0.7f, 0.6f, 0.5f), 0.f));
 
 	std::cout << "Done!\n";
 
-	return new HittableList(list, idx);
+	return std::make_shared<HittableList>(hittables, idx);
 }
 
 int main()
 {
-	constexpr int nx = 1280;
-	constexpr int ny = 720;
+	// Timer t("Elapsed");
+
+	constexpr int width = 200;
+	constexpr int height = 100;
 	constexpr int ns = 100;
 	constexpr int num_channels = 3;
 
@@ -117,7 +134,7 @@ int main()
 	const vec3 vertical(0.f, 2.f, 0.f);
 	const vec3 origin(0.f, 0.f, 0.f);
 
-	Hittable* world = random_scene();
+	auto world = test_scene();
 
 	vec3 lookfrom(13.f, 2.f, 3.f);
 	vec3 lookat(0.f, 0.f, 0.f);
@@ -125,7 +142,7 @@ int main()
 	constexpr float dist_to_focus = 10.f;
 	constexpr float aperture = 0.1f;
 	constexpr float fov = 20.f;
-	constexpr float aspect_ratio = static_cast<float>(nx) / static_cast<float>(ny);
+	constexpr float aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
 	Camera cam(lookfrom, lookat, cam_up, fov, aspect_ratio, aperture, dist_to_focus);
 
 	std::mt19937 mt_engine(std::random_device{}());
@@ -133,16 +150,16 @@ int main()
 
 	std::cout << "Generating image... ";
 
-	std::vector<unsigned char> image(nx * ny * num_channels);
-	for(int j = ny - 1; j >= 0; j--)
+	std::vector<unsigned char> image(width * height * num_channels);
+	for(int row = height - 1; row >= 0; row--)
 	{
-		for(int i = 0; i < nx; i++)
+		for(int column = 0; column < width; column++)
 		{
 			vec3 col(0.f, 0.f, 0.f);
 			for(int s = 0; s < ns; s++)
 			{
-				float u = (float(i) + fdist(mt_engine)) / float(nx);
-				float v = (float(j) + fdist(mt_engine)) / float(ny);
+				float u = (float(column) + fdist(mt_engine)) / float(width);
+				float v = (float(row) + fdist(mt_engine)) / float(height);
 
 				Ray r = cam.get_ray(u, v);
 				vec3 p = r.point_at_parameter(2.f);
@@ -152,12 +169,12 @@ int main()
 			col /= float(ns);
 			col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
-			int y = ny - j - 1;
-			image[(i + y * nx) * num_channels + 0] =
+			int y = height - row - 1;
+			image[(column + y * width) * num_channels + 0] =
 				static_cast<unsigned char>(int(255.99f * col.r()));
-			image[(i + y * nx) * num_channels + 1] =
+			image[(column + y * width) * num_channels + 1] =
 				static_cast<unsigned char>(int(255.99f * col.g()));
-			image[(i + y * nx) * num_channels + 2] =
+			image[(column + y * width) * num_channels + 2] =
 				static_cast<unsigned char>(int(255.99f * col.b()));
 		}
 	}
@@ -166,7 +183,7 @@ int main()
 	std::cout << "Writing to file... ";
 
 	std::string filename = "out.png";
-	stbi_write_png(filename.c_str(), nx, ny, num_channels, &image[0], nx * num_channels);
+	stbi_write_png(filename.c_str(), width, height, num_channels, &image[0], width * num_channels);
 
-	std::cout << "Done!";
+	std::cout << "Done!\n";
 }
