@@ -4,6 +4,11 @@
 #include <cstdlib>
 #include <iostream>
 
+struct RGB
+{
+	unsigned char r, g, b;
+};
+
 class vec3
 {
 public:

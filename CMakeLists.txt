@@ -15,5 +15,7 @@ elseif(UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 endif()
 
+include_directories("${CMAKE_SOURCE_DIR}/lib")
+
 file(GLOB_RECURSE SRCS "src/*.h" "src/*.cpp")
 add_executable(raytracer ${SRCS})
