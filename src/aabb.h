@@ -44,18 +44,18 @@ public:
 		return true;
 	}
 
+	static AABB surrounding_box(AABB box0, AABB box1)
+	{
+		vec3 small(fmin(box0.min().x(), box1.min().x()),
+				   fmin(box0.min().y(), box1.min().y()),
+				   fmin(box0.min().z(), box1.min().z()));
+		vec3 big(fmin(box0.max().x(), box1.max().x()),
+				 fmin(box0.max().y(), box1.max().y()),
+				 fmin(box0.max().z(), box1.max().z()));
+
+		return AABB(small, big);
+	}
+
 private:
 	vec3 _min, _max;
 };
-
-AABB surrounding_box(AABB box0, AABB box1)
-{
-	vec3 small(fmin(box0.min().x(), box1.min().x()),
-			   fmin(box0.min().y(), box1.min().y()),
-			   fmin(box0.min().z(), box1.min().z()));
-	vec3 big(fmin(box0.max().x(), box1.max().x()),
-			 fmin(box0.max().y(), box1.max().y()),
-			 fmin(box0.max().z(), box1.max().z()));
-
-	return AABB(small, big);
-}

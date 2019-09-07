@@ -56,7 +56,7 @@ public:
 			AABB(centre0 - vec3(radius, radius, radius), centre1 + vec3(radius, radius, radius));
 		AABB box_end =
 			AABB(centre1 - vec3(radius, radius, radius), centre1 + vec3(radius, radius, radius));
-		box = surrounding_box(box_start, box_end);
+		box = AABB::surrounding_box(box_start, box_end);
 
 		return true;
 	}

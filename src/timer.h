@@ -21,11 +21,9 @@ private:
 
 public:
 	// constructor
-	Timer(std::string title)
+	Timer(std::string title = "Elapsed")
 		: _title(std::move(title))
-		, // the title will be temporary string anyway,
-		// so no need to pass it by reference
-		_stopped(false)
+		, _stopped(false)
 		, _duration(0)
 	{
 		// might as well start the timer when the object is constructed

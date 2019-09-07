@@ -49,7 +49,6 @@ public:
 		std::mt19937 mt_engine(std::random_device{}());
 		std::uniform_real_distribution<float> fdist(0.f, 0.999f);
 		int axis = static_cast<int>(3.f * fdist(mt_engine));
-		const auto n = static_cast<int>(list.size());
 
 		if(axis == 0)
 		{
@@ -64,9 +63,11 @@ public:
 			std::sort(list.begin(), list.end(), box_z_compare);
 		}
 
+		const auto n = static_cast<int>(list.size());
 		if(list.size() == 1)
 		{
-			left = right = list[0];
+			left = list[0];
+			right = list[0];
 		}
 		else if(list.size() == 2)
 		{
@@ -75,7 +76,6 @@ public:
 		}
 		else
 		{
-			auto n = list.size();
 			auto first = list.begin();
 			auto last = list.end();
 
@@ -91,7 +91,7 @@ public:
 		   !right->bounding_box(time0, time1, box_right))
 		{
 			std::cerr << "No bounding box in BVHNode ctor!\n";
-			box = surrounding_box(box_left, box_right);
+			box = AABB::surrounding_box(box_left, box_right);
 		}
 	}
 

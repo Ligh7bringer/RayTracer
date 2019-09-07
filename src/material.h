@@ -3,6 +3,7 @@
 #include <random>
 
 #include "hittable.h"
+#include "texture.h"
 
 vec3 random_in_unit_sphere()
 {
@@ -28,7 +29,7 @@ public:
 class Lambertian : public Material
 {
 public:
-	Lambertian(const vec3& a)
+	Lambertian(std::shared_ptr<Texture> a)
 		: albedo(a)
 	{}
 
@@ -37,12 +38,12 @@ public:
 	{
 		vec3 target = rec.p + rec.normal + random_in_unit_sphere();
 		scattered = Ray(rec.p, target - rec.p, r_in.time());
-		attenuation = albedo;
+		attenuation = albedo->value(0, 0, rec.p);
 		return true;
 	}
 
 private:
-	vec3 albedo;
+	std::shared_ptr<Texture> albedo;
 };
 
 class Metal : public Material

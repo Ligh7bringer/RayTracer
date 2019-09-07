@@ -49,7 +49,7 @@ public:
 		{
 			if(list[0]->bounding_box(t0, t1, temp_box))
 			{
-				box = surrounding_box(box, temp_box);
+				box = AABB::surrounding_box(box, temp_box);
 			}
 			else
 				return false;
