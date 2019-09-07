@@ -16,7 +16,11 @@ public:
 		   float vfov,
 		   float aspect,
 		   float aperture,
-		   float focus_dist)
+		   float focus_dist,
+		   float t0,
+		   float t1)
+		: time0(t0)
+		, time1(t1)
 	{
 		lens_radius = aperture / 2.f;
 		float theta = vfov * static_cast<float>(M_PI / 180.0);
@@ -34,11 +38,16 @@ public:
 
 	Ray get_ray(float s, float t)
 	{
+		std::mt19937 mt_engine(std::random_device{}());
+		std::uniform_real_distribution<float> fdist(0.f, 0.999f);
+
 		vec3 rd = lens_radius * random_in_unit_disc();
 		vec3 offset = u * rd.x() + v * rd.y();
+		float time = time0 + fdist(mt_engine) * (time1 - time0);
 
 		return Ray(origin + offset,
-				   lower_left_corner + s * horizontal + t * vertical - origin - offset);
+				   lower_left_corner + s * horizontal + t * vertical - origin - offset,
+				   time);
 	}
 
 private:
@@ -63,4 +72,5 @@ private:
 	vec3 vertical;
 	vec3 u, v, w;
 	float lens_radius;
+	float time0, time1;
 };

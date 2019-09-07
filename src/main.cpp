@@ -9,9 +9,12 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+#include "bvh_node.h"
 #include "camera.h"
 #include "hittable_list.h"
 #include "material.h"
+#include "moving_sphere.h"
+#include "scene_factory.h"
 #include "sphere.h"
 #include "timer.h"
 
@@ -40,92 +43,12 @@ vec3 colour(const Ray& r, std::shared_ptr<Hittable> world, int depth)
 	}
 }
 
-std::shared_ptr<Hittable> test_scene()
-{
-	constexpr int list_size = 5;
-	hittables_vec list(list_size);
-
-	list[0] = std::make_shared<Sphere>(
-		vec3(0.f, 0.f, -1.f), 0.5f, std::make_shared<Lambertian>(vec3(0.1f, 0.2f, 0.5f)));
-	list[1] = std::make_shared<Sphere>(
-		vec3(0.f, -100.5f, -1.f), 100.f, std::make_shared<Lambertian>(vec3(0.8f, 0.8f, 0.f)));
-	list[2] = std::make_shared<Sphere>(
-		vec3(1.f, 0.f, -1.f), 0.5f, std::make_shared<Metal>(vec3(0.8f, 0.6f, 0.2f), 0.3f));
-	list[3] =
-		std::make_shared<Sphere>(vec3(-1.f, 0.f, -1.f), 0.5f, std::make_shared<Dielectric>(1.5f));
-	list[4] =
-		std::make_shared<Sphere>(vec3(-1.f, 0.f, -1.f), -0.45f, std::make_shared<Dielectric>(1.5f));
-
-	return std::make_shared<HittableList>(list, list_size);
-}
-
-std::shared_ptr<Hittable> random_scene()
-{
-	constexpr int num_spheres = 500;
-	hittables_vec hittables(num_spheres + 1);
-
-	std::cout << "Generating a random scene... ";
-	hittables[0] = std::make_shared<Sphere>(
-		vec3(0, -1000.f, 0.f), 1000.f, std::make_shared<Lambertian>(vec3(0.5f, 0.5f, 0.5f)));
-	int idx = 1;
-
-	std::mt19937 mt_engine(std::random_device{}());
-	std::uniform_real_distribution<float> fdist(0.f, 0.999f);
-
-	for(int a = -11; a < 11; a++)
-	{
-		for(int b = -11; b < 11; b++)
-		{
-			float choose_mat = fdist(mt_engine);
-			vec3 centre(a + 0.9f * fdist(mt_engine), 0.2f, b + 0.9f * fdist(mt_engine));
-			if((centre - vec3(4.f, 0.2f, 0.f)).length() > 0.9f)
-			{
-				if(choose_mat < 0.8f) // diffuse
-				{
-					hittables[idx++] = std::make_shared<Sphere>(
-						centre,
-						0.2f,
-						std::make_shared<Lambertian>(vec3(fdist(mt_engine) * fdist(mt_engine),
-														  fdist(mt_engine) * fdist(mt_engine),
-														  fdist(mt_engine) * fdist(mt_engine))));
-				}
-				else if(choose_mat < 0.95f) // metal
-				{
-					hittables[idx++] = std::make_shared<Sphere>(
-						centre,
-						0.2f,
-						std::make_shared<Metal>(vec3(0.5f * (1.f + fdist(mt_engine)),
-													 0.5f * (1.f + fdist(mt_engine)),
-													 0.5f * (1.f + fdist(mt_engine))),
-												0.5f * fdist(mt_engine)));
-				}
-				else // glass
-				{
-					hittables[idx++] =
-						std::make_shared<Sphere>(centre, 0.2f, std::make_shared<Dielectric>(1.5f));
-				}
-			}
-		}
-	}
-
-	hittables[idx++] =
-		std::make_shared<Sphere>(vec3(0.f, 1.f, 0.f), 1.f, std::make_shared<Dielectric>(1.5f));
-	hittables[idx++] = std::make_shared<Sphere>(
-		vec3(-4.f, 1.f, 0.f), 1.f, std::make_shared<Lambertian>(vec3(0.4f, 0.2f, 0.1f)));
-	hittables[idx++] = std::make_shared<Sphere>(
-		vec3(4.f, 1.f, 0.f), 1.f, std::make_shared<Metal>(vec3(0.7f, 0.6f, 0.5f), 0.f));
-
-	std::cout << "Done!\n";
-
-	return std::make_shared<HittableList>(hittables, idx);
-}
-
 int main()
 {
-	// Timer t("Elapsed");
+	Timer t("Elapsed");
 
-	constexpr int width = 200;
-	constexpr int height = 100;
+	constexpr int width = 1280;
+	constexpr int height = 720;
 	constexpr int ns = 100;
 	constexpr int num_channels = 3;
 
@@ -134,7 +57,7 @@ int main()
 	const vec3 vertical(0.f, 2.f, 0.f);
 	const vec3 origin(0.f, 0.f, 0.f);
 
-	auto world = test_scene();
+	auto world = SceneFactory::random_scene();
 
 	vec3 lookfrom(13.f, 2.f, 3.f);
 	vec3 lookat(0.f, 0.f, 0.f);
@@ -143,7 +66,7 @@ int main()
 	constexpr float aperture = 0.1f;
 	constexpr float fov = 20.f;
 	constexpr float aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
-	Camera cam(lookfrom, lookat, cam_up, fov, aspect_ratio, aperture, dist_to_focus);
+	Camera cam(lookfrom, lookat, cam_up, fov, aspect_ratio, aperture, dist_to_focus, 0.f, 1.f);
 
 	std::mt19937 mt_engine(std::random_device{}());
 	std::uniform_real_distribution<float> fdist(0.f, 0.999f);

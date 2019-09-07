@@ -34,6 +34,30 @@ public:
 		return hit_anything;
 	}
 
+	virtual bool bounding_box(float t0, float t1, AABB& box) const override
+	{
+		if(list.size() < 1) return false;
+
+		AABB temp_box;
+		bool first_true = list[0]->bounding_box(t0, t1, temp_box);
+		if(!first_true)
+			return false;
+		else
+			box = temp_box;
+
+		for(size_t i = 1; i < list.size(); i++)
+		{
+			if(list[0]->bounding_box(t0, t1, temp_box))
+			{
+				box = surrounding_box(box, temp_box);
+			}
+			else
+				return false;
+		}
+
+		return true;
+	}
+
 private:
 	hittables_vec list;
 	int list_size;
