@@ -5,7 +5,9 @@
 
 #include "ray.h"
 
-constexpr double M_PI = 3.14159265358979323846; // pi
+#ifdef _WIN32
+constexpr double M_PI = 3.14159265358979323846;
+#endif
 
 class Camera
 {

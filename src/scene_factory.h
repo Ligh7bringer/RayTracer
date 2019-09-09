@@ -4,6 +4,7 @@
 #include "hittable.h"
 #include "material.h"
 #include "moving_sphere.h"
+#include "perlin.h"
 #include "sphere.h"
 #include "texture.h"
 
@@ -39,8 +40,6 @@ public:
 		constexpr int num_spheres = 11;
 		hittables_vec hittables;
 		hittables.reserve((2 * num_spheres) * (2 * num_spheres + 4));
-
-		std::cout << "Generating a random scene... ";
 
 		auto checker_tex = std::make_shared<CheckerTexture>(
 			std::make_shared<ConstantTexture>(vec3(0.2f, 0.3f, 0.1f)),
@@ -102,8 +101,6 @@ public:
 		hittables.emplace_back(std::make_shared<Sphere>(
 			vec3(4.f, 1.f, 0.f), 1.f, std::make_shared<Metal>(vec3(0.7f, 0.6f, 0.5f), 0.f)));
 
-		std::cout << "Done!\n";
-
 		return std::make_shared<HittableList>(hittables, static_cast<int>(hittables.size()));
 	}
 
@@ -122,6 +119,19 @@ public:
 		list.emplace_back(std::make_shared<Sphere>(
 			vec3(0.f, 10.f, 0.f), 10.f, std::make_shared<Lambertian>(checker_tex)));
 
-		return std::make_shared<HittableList>(list, 2);
+		return std::make_shared<HittableList>(list, static_cast<int>(list.size()));
+	}
+
+	static std::shared_ptr<Hittable> two_perlin_spheres()
+	{
+		auto perlin_tex = std::make_shared<NoiseTexture>(4.f);
+		hittables_vec list;
+
+		list.emplace_back(std::make_shared<Sphere>(
+			vec3(0.f, -1000.f, 0.f), 1000.f, std::make_shared<Lambertian>(perlin_tex)));
+		list.emplace_back(std::make_shared<Sphere>(
+			vec3(0.f, 2.f, 0.f), 2.f, std::make_shared<Lambertian>(perlin_tex)));
+
+		return std::make_shared<HittableList>(list, static_cast<int>(list.size()));
 	}
 };

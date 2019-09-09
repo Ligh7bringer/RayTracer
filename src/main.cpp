@@ -15,8 +15,8 @@ int main()
 {
 	Timer t("Elapsed");
 
-	constexpr int width = 200;
-	constexpr int height = 100;
+	constexpr int width = 600;
+	constexpr int height = 300;
 	constexpr int num_samples = 100; // per pixel
 	constexpr int num_channels = 3;
 
@@ -36,7 +36,10 @@ int main()
 
 	std::mt19937 mt_engine(std::random_device{}());
 	std::uniform_real_distribution<float> fdist(0.f, 0.999f);
-	auto world = SceneFactory::random_scene();
+
+	std::cout << "Generating scene... ";
+	auto world = SceneFactory::two_perlin_spheres();
+	std::cout << "Done! \n";
 
 	std::cout << "Generating image... ";
 
