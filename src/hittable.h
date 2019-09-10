@@ -12,6 +12,7 @@ struct HitRecord
 	float t;
 	vec3 p;
 	vec3 normal;
+	float u, v;
 	std::shared_ptr<Material> mat_ptr;
 };
 

@@ -38,7 +38,7 @@ int main()
 	std::uniform_real_distribution<float> fdist(0.f, 0.999f);
 
 	std::cout << "Generating scene... ";
-	auto world = SceneFactory::two_perlin_spheres();
+	auto world = SceneFactory::two_image_spheres();
 	std::cout << "Done! \n";
 
 	std::cout << "Generating image... ";

@@ -3,6 +3,9 @@
 #include "perlin.h"
 #include "vec3.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include <memory>
 
 class Texture
@@ -65,4 +68,37 @@ public:
 private:
 	float scale;
 	Perlin noise;
+};
+
+class ImageTexture : public Texture
+{
+public:
+	ImageTexture() = default;
+	ImageTexture(const std::string& filepath)
+	{
+		data = stbi_load(filepath.c_str(), &width, &height, &num_channels, 0);
+	}
+	~ImageTexture() { stbi_image_free(data); }
+
+	virtual vec3 value(float u, float v, const vec3& p) const override
+	{
+		int i = (u)*width;
+		int j = (1 - v) * height - 0.001;
+
+		if(i < 0) i = 0;
+		if(j < 0) j = 0;
+
+		if(i > width - 1) i = width - 1;
+		if(j > height - 1) j = height - 1;
+
+		float r = int(data[3 * i + 3 * width * j]) / 255.0;
+		float g = int(data[3 * i + 3 * width * j + 1]) / 255.0;
+		float b = int(data[3 * i + 3 * width * j + 2]) / 255.0;
+
+		return vec3(r, g, b);
+	}
+
+private:
+	unsigned char* data;
+	int width, height, num_channels;
 };

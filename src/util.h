@@ -6,6 +6,8 @@
 #include <limits>
 #include <memory>
 
+#define _USE_MATH_DEFINES
+
 class Util
 {
 public:
@@ -18,7 +20,8 @@ public:
 			vec3 attenuation;
 			if(depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered))
 			{
-				return attenuation * colour(scattered, world, depth + 1);
+				return attenuation;
+				//*colour(scattered, world, depth + 1);
 			}
 			else
 			{
@@ -31,5 +34,13 @@ public:
 			float t = 0.5f * (unit_direction.y() + 1.0f);
 			return (1.f - t) * vec3(1.f, 1.f, 1.f) + t * vec3(0.5f, 0.7f, 1.0f);
 		}
+	}
+
+	static void get_sphere_uv(const vec3& p, float& u, float& v)
+	{
+		float phi = atan2(p.z(), p.x());
+		float theta = asin(p.y());
+		u = 1 - (phi + M_PI) / (2 * M_PI);
+		v = (theta + M_PI / 2) / M_PI;
 	}
 };

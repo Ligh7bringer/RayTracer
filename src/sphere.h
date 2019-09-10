@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hittable.h"
+#include "util.h"
 
 class Sphere : public Hittable
 {
@@ -29,6 +30,7 @@ public:
 				rec.p = r.point_at_parameter(rec.t);
 				rec.normal = (rec.p - centre) / radius;
 				rec.mat_ptr = mat_ptr;
+				Util::get_sphere_uv(rec.normal, rec.u, rec.v);
 				return true;
 			}
 
@@ -39,6 +41,7 @@ public:
 				rec.p = r.point_at_parameter(rec.t);
 				rec.normal = (rec.p - centre) / radius;
 				rec.mat_ptr = mat_ptr;
+				Util::get_sphere_uv(rec.normal, rec.u, rec.v);
 				return true;
 			}
 		}

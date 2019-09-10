@@ -134,4 +134,14 @@ public:
 
 		return std::make_shared<HittableList>(list, static_cast<int>(list.size()));
 	}
+
+	static std::shared_ptr<Hittable> two_image_spheres()
+	{
+		auto mat = std::make_shared<Lambertian>(std::make_shared<ImageTexture>("world_map.jpg"));
+		hittables_vec list;
+
+		list.emplace_back(std::make_shared<Sphere>(vec3(0.f, 0.f, 0.f), 2.f, mat));
+
+		return std::make_shared<HittableList>(list, static_cast<int>(list.size()));
+	}
 };
