@@ -1,10 +1,12 @@
 #pragma once
 
 #include "bvh_node.h"
+#include "flip_normals.h"
 #include "hittable.h"
 #include "material.h"
 #include "moving_sphere.h"
 #include "perlin.h"
+#include "rect.h"
 #include "sphere.h"
 #include "texture.h"
 
@@ -141,6 +143,63 @@ public:
 		hittables_vec list;
 
 		list.emplace_back(std::make_shared<Sphere>(vec3(0.f, 0.f, 0.f), 2.f, mat));
+
+		return std::make_shared<HittableList>(list, static_cast<int>(list.size()));
+	}
+
+	static std::shared_ptr<Hittable> simple_light()
+	{
+		auto perlin_tex = std::make_shared<NoiseTexture>(4.f);
+		hittables_vec list;
+
+		list.emplace_back(std::make_shared<Sphere>(
+			vec3(0.f, -1000.f, 0.f), 1000.f, std::make_shared<Lambertian>(perlin_tex)));
+		list.emplace_back(std::make_shared<Sphere>(
+			vec3(0.f, 2.f, 0.f), 2.f, std::make_shared<Lambertian>(perlin_tex)));
+		list.emplace_back(
+			std::make_shared<Sphere>(vec3(0.f, 7.f, 0.f),
+									 2.f,
+									 std::make_shared<DiffuseLight>(
+										 std::make_shared<ConstantTexture>(vec3(4.f, 4.f, 4.f)))));
+		list.emplace_back(
+			std::make_shared<XYRect>(3.f,
+									 5.f,
+									 1.f,
+									 3.f,
+									 -2.f,
+									 std::make_shared<DiffuseLight>(
+										 std::make_shared<ConstantTexture>(vec3(4.f, 4.f, 4.f)))));
+
+		return std::make_shared<HittableList>(list, static_cast<int>(list.size()));
+	}
+
+	static std::shared_ptr<Hittable> cornell_box()
+	{
+		hittables_vec list;
+
+		auto red = std::make_shared<Lambertian>(
+			std::make_shared<ConstantTexture>(vec3(0.65f, 0.05f, 0.05f)));
+		auto white = std::make_shared<Lambertian>(
+			std::make_shared<ConstantTexture>(vec3(0.73f, 0.73f, 0.73f)));
+		auto green = std::make_shared<Lambertian>(
+			std::make_shared<ConstantTexture>(vec3(0.12f, 0.45f, 0.15f)));
+		auto light = std::make_shared<DiffuseLight>(
+			std::make_shared<ConstantTexture>(vec3(15.f, 15.f, 15.f)));
+
+		list.emplace_back(std::make_shared<FlipNormals>(
+			std::make_shared<YZRect>(0.f, 555.f, 0.f, 555.f, 555.f, green)));
+
+		list.emplace_back(std::make_shared<YZRect>(0.f, 555.f, 0.f, 555.f, 0.f, red));
+
+		list.emplace_back(std::make_shared<XZRect>(213.f, 343.f, 227.f, 332.f, 554.f, light));
+
+		list.emplace_back(std::make_shared<FlipNormals>(
+			std::make_shared<XZRect>(0.f, 555.f, 0.f, 555.f, 555.f, white)));
+
+		list.emplace_back(std::make_shared<XZRect>(0.f, 555.f, 0.f, 555.f, 0.f, white));
+
+		list.emplace_back(std::make_shared<FlipNormals>(
+			std::make_shared<XYRect>(0.f, 555.f, 0.f, 555.f, 555.f, white)));
 
 		return std::make_shared<HittableList>(list, static_cast<int>(list.size()));
 	}

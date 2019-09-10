@@ -24,6 +24,7 @@ class Material
 public:
 	virtual bool
 	scatter(const Ray& r_in, const HitRecord& rec, vec3& attenuation, Ray& scattered) const = 0;
+	virtual vec3 emitted(float u, float v, const vec3& p) const { return vec3(0.f, 0.f, 0.f); }
 };
 
 class Lambertian : public Material
@@ -128,4 +129,26 @@ public:
 
 private:
 	float ref_idx;
+};
+
+class DiffuseLight : public Material
+{
+public:
+	DiffuseLight(std::shared_ptr<Texture> a)
+		: emit(a)
+	{}
+
+	virtual bool
+	scatter(const Ray& r_in, const HitRecord& rec, vec3& attenuation, Ray& scattered) const override
+	{
+		return false;
+	}
+
+	virtual vec3 emitted(float u, float v, const vec3& p) const override
+	{
+		return emit->value(u, v, p);
+	}
+
+private:
+	std::shared_ptr<Texture> emit;
 };

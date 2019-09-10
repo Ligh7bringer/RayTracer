@@ -18,22 +18,14 @@ public:
 		{
 			Ray scattered;
 			vec3 attenuation;
+			vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
 			if(depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered))
-			{
-				return attenuation;
-				//*colour(scattered, world, depth + 1);
-			}
+				return emitted + attenuation * colour(scattered, world, depth + 1);
 			else
-			{
-				return vec3(0.f, 0.f, 0.f);
-			}
+				return emitted;
 		}
 		else
-		{
-			vec3 unit_direction = unit_vector(r.direction());
-			float t = 0.5f * (unit_direction.y() + 1.0f);
-			return (1.f - t) * vec3(1.f, 1.f, 1.f) + t * vec3(0.5f, 0.7f, 1.0f);
-		}
+			return vec3(0.f, 0.f, 0.f);
 	}
 
 	static void get_sphere_uv(const vec3& p, float& u, float& v)
