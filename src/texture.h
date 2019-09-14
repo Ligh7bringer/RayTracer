@@ -47,14 +47,14 @@ public:
 	}
 
 private:
-	std::shared_ptr<Texture> odd, even;
+    std::shared_ptr<Texture> even, odd;
 };
 
 class NoiseTexture : public Texture
 {
 public:
 	NoiseTexture() = default;
-	NoiseTexture(float sc)
+    explicit NoiseTexture(float sc)
 		: scale(sc)
 	{}
 
@@ -82,8 +82,8 @@ public:
 
 	virtual vec3 value(float u, float v, const vec3& p) const override
 	{
-		int i = (u)*width;
-		int j = (1 - v) * height - 0.001;
+        int i = static_cast<int>((u)*width);
+        int j = static_cast<int>((1.f - v) * height - 0.001f);
 
 		if(i < 0) i = 0;
 		if(j < 0) j = 0;
@@ -91,9 +91,9 @@ public:
 		if(i > width - 1) i = width - 1;
 		if(j > height - 1) j = height - 1;
 
-		float r = int(data[3 * i + 3 * width * j]) / 255.0;
-		float g = int(data[3 * i + 3 * width * j + 1]) / 255.0;
-		float b = int(data[3 * i + 3 * width * j + 2]) / 255.0;
+        float r = static_cast<float>(int(data[3 * i + 3 * width * j]) / 255.0);
+        float g = static_cast<float>(int(data[3 * i + 3 * width * j + 1]) / 255.0);
+        float b = static_cast<float>(int(data[3 * i + 3 * width * j + 2]) / 255.0);
 
 		return vec3(r, g, b);
 	}

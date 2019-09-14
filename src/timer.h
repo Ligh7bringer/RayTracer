@@ -13,15 +13,15 @@
 class Timer
 {
 private:
-	std::chrono::time_point<std::chrono::system_clock> _start; // start time
-	std::chrono::time_point<std::chrono::system_clock> _end; // end time
-	long long _duration; // end - start, i.e. for how long the timer was running
-	std::string _title; // "name" of the timer, displayed with the elapsed time
-	bool _stopped;
+    std::string _title; // "name" of the timer, displayed with the elapsed time
+    bool _stopped;
+    long long _duration; // end - start, i.e. for how long the timer was running
+    std::chrono::time_point<std::chrono::system_clock> _start; // start time
+    std::chrono::time_point<std::chrono::system_clock> _end; // end time
 
 public:
 	// constructor
-	Timer(std::string title = "Elapsed")
+    explicit Timer(std::string title = "Elapsed")
 		: _title(std::move(title))
 		, _stopped(false)
 		, _duration(0)

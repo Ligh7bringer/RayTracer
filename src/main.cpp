@@ -63,11 +63,11 @@ int main()
 			col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
 			int y = height - row - 1;
-			image[(column + y * width) * num_channels + 0] =
+            image[static_cast<size_t>((column + y * width) * num_channels + 0)] =
 				static_cast<unsigned char>(int(255.99f * col.r()));
-			image[(column + y * width) * num_channels + 1] =
+            image[static_cast<size_t>((column + y * width) * num_channels + 1)] =
 				static_cast<unsigned char>(int(255.99f * col.g()));
-			image[(column + y * width) * num_channels + 2] =
+            image[static_cast<size_t>((column + y * width) * num_channels + 2)] =
 				static_cast<unsigned char>(int(255.99f * col.b()));
 		}
 	}

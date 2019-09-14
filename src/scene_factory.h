@@ -1,5 +1,6 @@
 #pragma once
 
+#include "box.h"
 #include "bvh_node.h"
 #include "flip_normals.h"
 #include "hittable.h"
@@ -201,6 +202,11 @@ public:
 		list.emplace_back(std::make_shared<FlipNormals>(
 			std::make_shared<XYRect>(0.f, 555.f, 0.f, 555.f, 555.f, white)));
 
-		return std::make_shared<HittableList>(list, static_cast<int>(list.size()));
+        list.emplace_back(
+            std::make_shared<Box>(vec3(130.f, 0.f, 65.f), vec3(295.f, 165.f, 230.f), white));
+        list.emplace_back(
+            std::make_shared<Box>(vec3(265.f, 0.f, 295.f), vec3(430.f, 330.f, 460.f), white));
+
+        return std::make_shared<HittableList>(list, static_cast<int>(list.size()));
 	}
 };
