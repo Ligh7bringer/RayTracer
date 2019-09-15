@@ -8,8 +8,10 @@
 #include "moving_sphere.h"
 #include "perlin.h"
 #include "rect.h"
+#include "rotate.h"
 #include "sphere.h"
 #include "texture.h"
+#include "translate.h"
 
 #include <memory>
 #include <vector>
@@ -189,23 +191,24 @@ public:
 
 		list.emplace_back(std::make_shared<FlipNormals>(
 			std::make_shared<YZRect>(0.f, 555.f, 0.f, 555.f, 555.f, green)));
-
 		list.emplace_back(std::make_shared<YZRect>(0.f, 555.f, 0.f, 555.f, 0.f, red));
-
 		list.emplace_back(std::make_shared<XZRect>(213.f, 343.f, 227.f, 332.f, 554.f, light));
-
 		list.emplace_back(std::make_shared<FlipNormals>(
 			std::make_shared<XZRect>(0.f, 555.f, 0.f, 555.f, 555.f, white)));
-
 		list.emplace_back(std::make_shared<XZRect>(0.f, 555.f, 0.f, 555.f, 0.f, white));
-
 		list.emplace_back(std::make_shared<FlipNormals>(
 			std::make_shared<XYRect>(0.f, 555.f, 0.f, 555.f, 555.f, white)));
 
-        list.emplace_back(
-            std::make_shared<Box>(vec3(130.f, 0.f, 65.f), vec3(295.f, 165.f, 230.f), white));
-        list.emplace_back(
-            std::make_shared<Box>(vec3(265.f, 0.f, 295.f), vec3(430.f, 330.f, 460.f), white));
+        list.emplace_back(std::make_shared<Translate>(
+            std::make_shared<RotateY>(
+                std::make_shared<Box>(vec3(0.f, 0.f, 0.f), vec3(165.f, 165.f, 165.f), white),
+                -18.f),
+            vec3(130.f, 0.f, 65.f)));
+
+        list.emplace_back(std::make_shared<Translate>(
+            std::make_shared<RotateY>(
+                std::make_shared<Box>(vec3(0.f, 0.f, 0.f), vec3(165.f, 330.f, 165.f), white), 15.f),
+            vec3(265.f, 0.f, 295.f)));
 
         return std::make_shared<HittableList>(list, static_cast<int>(list.size()));
 	}
